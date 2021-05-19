@@ -1,15 +1,8 @@
-import aiohttp
 import os
 import sys
 import traceback
-import asyncio
-from typing import Dict
-import pprint
-import http
-import logging
-from urllib import parse
 from aiohttp import web
-from aiojobs.aiohttp import setup, spawn
+from utils.app import create_web_app
 from loguru import logger
 
 logger.add("logs/curve_collection_agent.log", rotation="1 days", level="INFO", encoding='utf-8')  # 文件日誌
@@ -46,48 +39,13 @@ schema = {
 }
 
 
-async def doPushCurve2Airflow():
-    async with aiohttp.ClientSession() as session:
-        dt: Dict = METHOD_DICT.get('post_curve', {})
-        mm = dt.get('method')
-        m = getattr(session, mm)
-        post_curve_url = parse.urljoin(ENV_AIRFLOW_BASE_URL, dt.get('url', ''))
-        async with m(post_curve_url) as resp:
-            txt = await resp.text(encoding='utf-8')
-            logger.info("推送曲线: {}, payload: {}".format(resp.status, txt))
-            return txt
-
-
-async def postCurveCollectionhandle(request):
-    data = await curveCollectionhandle(request)
-    return data
-
-
-async def healthzCheckHandler(request):
-    return web.Response(status=http.HTTPStatus.NO_CONTENT)
-
-
-async def curveCollectionhandle(request):
-    data: Dict = await request.json()
-    result_content = data.get('result', '')
-    curve_content = data.get('curve', '')
-    logger.debug("收到曲线数据: {}".format(pprint.pformat(data, indent=4)))
-    resp = await doPushCurve2Airflow()
-    return web.Response(text=resp)
-
-
 def excepthook(exc_type, exc_value, exc_tb):
     tb = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
     logger.error(tb)
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    app = web.Application()
-    app.add_routes([web.get('/', curveCollectionhandle),
-                    web.post('/curves', postCurveCollectionhandle),
-                    web.get('/healthz', healthzCheckHandler)])
-
+    app = create_web_app()
     sys.excepthook = excepthook
 
     web.run_app(app, host='0.0.0.0', port=8080, access_log=logger)
