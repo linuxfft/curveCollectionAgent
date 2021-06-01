@@ -1,3 +1,4 @@
+import json
 from aiohttp import web
 import aiohttp
 from typing import Dict
@@ -12,7 +13,7 @@ ENV_AIRFLOW_BASE_URL = os.getenv('ENV_AIRFLOW_BASE_URL', 'http://localhost:8080'
 METHOD_DICT = {
     'post_curve': {
         'method': 'post',
-        'url': 'dag_run'
+        'url': 'dag_runs'
     }
 }
 
@@ -23,7 +24,7 @@ async def doPushCurve2Airflow(data):
         mm = dt.get('method')
         m = getattr(session, mm)
         post_curve_url = parse.urljoin(ENV_AIRFLOW_BASE_URL, dt.get('url', ''))
-        async with m(post_curve_url, json=data) as resp:
+        async with m(post_curve_url, data=data) as resp:
             txt = await resp.text(encoding='utf-8')
             logger.info("推送曲线: {}, payload: {}".format(resp.status, txt))
             return txt
@@ -68,20 +69,19 @@ async def curveCollectionhandle(request):
           "measure_angle": measure_angle,
           "measure_time": measure_time,
           "batch": '',
-          "count": 0,
+          "count": 1,
           "job": 1,
           "controller_sn": "",
-          "controller_name": "CA-007R1",
+          "controller_name": "CA-09R4",
           "pset": 1,
         },
         "curve": {
-          "cur_m": measure_torque,
-          "cur_w": measure_angle,
-          "cur_t": measure_time
+          "cur_m": cur_m,
+          "cur_w": cur_w,
+          "cur_t": cur_t
         },
       }
     }
-
     # logger.debug("收到曲线数据: {}".format(pprint.pformat(data, indent=4)))
-    resp = await doPushCurve2Airflow(airflow_data)
+    resp = await doPushCurve2Airflow(json.dumps(airflow_data, ensure_ascii=False))
     return web.Response(text=resp)
