@@ -68,13 +68,14 @@ async def curveCollectionhandle(request):
           "measure_torque": measure_torque,
           "measure_angle": measure_angle,
           "measure_time": measure_time,
-          "batch": '',
+          "batch_count": 1,
           "count": 1,
           "job": 1,
-          "controller_sn": "",
-          "controller_name": "CA-09R4",
+          "controller_sn": "OP52",
+          "controller_name": "OP52",
           "pset": 1,
-          "program": 1
+          "program": 1,
+          "tool_sn": "3002",
         },
         "curve": {
           "cur_m": cur_m,
