@@ -74,6 +74,7 @@ async def curveCollectionhandle(request):
           "controller_sn": "",
           "controller_name": "CA-09R4",
           "pset": 1,
+          "program": 1
         },
         "curve": {
           "cur_m": cur_m,
