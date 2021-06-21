@@ -57,30 +57,32 @@ async def curveCollectionhandle(request):
     cur_t = curve_content.get("time")
     measure_torque = cur_m[-1]
     measure_angle = cur_w[-1]
-    measure_time = cur_t[-1]
+    measure_time = int(cur_t[-1])
 
     airflow_data = {
       "replace_microseconds": 'false',
       "conf": {
+        "should_analyze": False,
         "entity_id": entity_id,
         "result": {
-          "measure_result": measure_result,
-          "measure_torque": measure_torque,
-          "measure_angle": measure_angle,
-          "measure_time": measure_time,
-          "batch_count": 1,
-          "count": 1,
-          "job": 1,
-          "controller_sn": "OP52",
-          "controller_name": "OP52",
-          "pset": 1,
-          "program": 1,
-          "tool_sn": "3002",
+            "device_type": "servo_press",
+            "measure_result": measure_result,
+            "measure_torque": measure_torque,
+            "measure_angle": measure_angle,
+            "measure_time": measure_time,
+            "batch_count": 1,
+            "count": 1,
+            "job": 1,
+            "controller_sn": "OP52",
+            "controller_name": "OP52",
+            "pset": 1,
+            "program": 1,
+            "tool_sn": "3002",
         },
         "curve": {
-          "cur_m": cur_m,
-          "cur_w": cur_w,
-          "cur_t": cur_t
+            "cur_m": cur_m,
+            "cur_w": cur_w,
+            "cur_t": cur_t
         },
       }
     }
